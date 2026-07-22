@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiciTaxi Artemisa</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --accent: #fbc02d;
+            --bg: #f4f6f8;
+            --card-bg: #ffffff;
+            --text: #333333;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        header {
+            text-align: center;
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .driver-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid var(--primary);
+        }
+
+        .driver-info h3 {
+            margin: 0 0 4px 0;
+            font-size: 1rem;
+        }
+
+        .driver-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .badge {
+            background: #e8f5e9;
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #1eb854;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🚴 BiciTaxi Artemisa</h1>
+        <p>Solicita tu viaje directo a la puerta de tu casa</p>
+    </header>
+
+    <!-- Paso 1: Ubicación -->
+    <div class="card">
+        <h2>1. Ingresa tu Recorrido</h2>
+        <div class="form-group">
+            <label for="origen">¿Dónde te recogen?</label>
+            <input type="text" id="origen" placeholder="Ej: Parque Central, cerca del BFI">
+        </div>
+        <div class="form-group">
+            <label for="destino">¿Hacia dónde vas?</label>
+            <input type="text" id="destino" placeholder="Ej: Reparto Las Cañas">
+        </div>
+    </div>
+
+    <!-- Paso 2: Elección de Chofer -->
+    <div class="card">
+        <h2>2. Selecciona un Chofer Disponible</h2>
+        <div id="lista-choferes">
+            <!-- Choferes cargados desde JS -->
+        </div>
+    </div>
+
+    <footer>
+        <p>© BiciTaxi Artemisa - Conectando la ciudad</p>
+    </footer>
+</div>
+
+<script>
+    // Lista de choferes activos (Esto es lo que tú administrarás)
+    const choferes = [
+        {
+            nombre: "Juan Carlos",
+            zona: "Centro / Estación",
+            telefono: "5350000000" // Sustituir por el número real
+        },
+        {
+            nombre: "Maikel",
+            zona: "Reparto Las Cañas",
+            telefono: "5350000001"
+        },
+        {
+            nombre: "Yordanis",
+            zona: "Toda Artemisa",
+            telefono: "5350000002"
+        }
+    ];
+
+    function cargarChoferes() {
+        const contenedor = document.getElementById('lista-choferes');
+        contenedor.innerHTML = '';
+
+        choferes.forEach((chofer, index) => {
+            const card = document.createElement('div');
+            card.className = 'driver-card';
+            card.innerHTML = `
+                <div class="driver-info">
+                    <h3>${chofer.nombre}</h3>
+                    <p>📍 Zona: ${chofer.zona}</p>
+                    <span class="badge">Disponible</span>
+                </div>
+                <button class="btn-whatsapp" onclick="solicitarViaje(${index})">
+                    Pedir Viaje
+                </button>
+            `;
+            contenedor.appendChild(card);
+        });
+    }
+
+    function solicitarViaje(indexChofer) {
+        const origen = document.getElementById('origen').value.trim();
+        const destino = document.getElementById('destino').value.trim();
+
+        if (!origen || !destino) {
+            alert('Por favor, escribe tu ubicación y tu destino antes de pedir el bicitaxi.');
+            return;
+        }
+
+        const chofer = choferes[indexChofer];
+        
+        // Formatear el mensaje de WhatsApp
+        const mensaje = `Hola ${chofer.nombre}, necesito un bicitaxi.\n\n📍 *Recogida:* ${origen}\n🏁 *Destino:* ${destino}`;
+        const url = `https://wa.me/${chofer.telefono}?text=${encodeURIComponent(mensaje)}`;
+        
+        // Abrir WhatsApp
+        window.open(url, '_blank');
+    }
+
+    // Inicializar app
+    cargarChoferes();
+</script>
+
+</body>
+</html>
