@@ -1,9 +1,19 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BiciTaxi Artemisa</title>
+    
+    <!-- Configuración PWA (Manifiesto e Iconos) -->
+    <meta name="theme-color" content="#2e7d32">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BiciTaxi">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+
     <style>
         :root {
             --primary: #2e7d32;
@@ -50,6 +60,34 @@
             opacity: 0.9;
         }
 
+        .pwa-install-banner {
+            display: none;
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .pwa-install-banner p {
+            margin: 0 0 8px 0;
+            font-size: 0.85rem;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .btn-install {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
         .driver-card {
             background: var(--card-bg);
             border-radius: 12px;
@@ -81,9 +119,29 @@
         }
 
         .driver-info h3 {
-            margin: 0 0 5px 0;
+            margin: 0 0 2px 0;
             font-size: 1.1rem;
             color: #111;
+        }
+
+        .rating-box {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+            color: #f57c00;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .rating-box .stars {
+            color: #ffc107;
+        }
+
+        .rating-box .reviews-count {
+            color: #757575;
+            font-size: 0.75rem;
+            font-weight: normal;
         }
 
         .driver-info p {
@@ -168,6 +226,12 @@
         <p>Tu transporte rápido y confiable en la ciudad</p>
     </header>
 
+    <!-- Banner para instalar PWA -->
+    <div id="pwa-banner" class="pwa-install-banner">
+        <p>📲 ¡Instala la App de BiciTaxi en tu teléfono!</p>
+        <button id="btn-install-app" class="btn-install">Instalar aplicación</button>
+    </div>
+
     <div id="drivers-list"></div>
 
     <div class="driver-banner">
@@ -178,30 +242,38 @@
 </div>
 
 <script>
-    // Lista de choferes (Aquí puedes agregar más adelante a otros)
+    // Lista de choferes con Reseñas y Puntuación
     const drivers = [
         {
+            id: "yonlys_01",
             name: "Yonlys",
             phone: "5358754184",
             zone: "Municipio Artemisa",
             rate: "A convenir",
             photo: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-            startHour: 6,  // Hora en que comienza a trabajar (6:00 AM)
-            endHour: 20    // Hora en que termina (8:00 PM / 20:00)
+            rating: 5.0,
+            reviewsCount: 18,
+            startHour: 6,  // 6:00 AM
+            endHour: 20    // 8:00 PM
         }
     ];
+
+    // Registrar contador invisible de clics
+    function trackClick(driverId, driverName, phone) {
+        let clicks = localStorage.getItem('clicks_' + driverId) || 0;
+        clicks = parseInt(clicks) + 1;
+        localStorage.setItem('clicks_' + driverId, clicks);
+        console.log(`[Contador] El chofer ${driverName} ha recibido ${clicks} clics en total.`);
+    }
 
     function renderDrivers() {
         const list = document.getElementById('drivers-list');
         list.innerHTML = '';
 
-        // Obtener la hora actual del dispositivo del cliente
         const currentHour = new Date().getHours();
 
         drivers.forEach(driver => {
             const card = document.createElement('div');
-            
-            // Comprobar si está dentro del horario laboral
             const isWorkingTime = currentHour >= driver.startHour && currentHour < driver.endHour;
             
             card.className = `driver-card ${isWorkingTime ? '' : 'offline'}`;
@@ -212,10 +284,19 @@
                 <img src="${photoUrl}" class="driver-avatar" alt="${driver.name}">
                 <div class="driver-info">
                     <h3>${driver.name}</h3>
+                    <div class="rating-box">
+                        <span class="stars">★ ${driver.rating.toFixed(1)}</span>
+                        <span class="reviews-count">(${driver.reviewsCount} opiniones)</span>
+                    </div>
                     <p>📍 <b>Zona:</b> ${driver.zone}</p>
                     <p>💰 <b>Tarifa:</b> ${driver.rate}</p>
                     <span class="badge ${isWorkingTime ? '' : 'offline'}">${isWorkingTime ? 'Disponible' : 'Fuera de servicio (Regresa 6 AM)'}</span>
-                    <a href="https://wa.me/${driver.phone}?text=Hola%20${driver.name},%20necesito%20un%20viaje%20en%20bicitaxi." class="btn-order ${isWorkingTime ? '' : 'disabled'}" target="_blank">${isWorkingTime ? 'Pedir Viaje 🚖' : 'No disponible'}</a>
+                    <a href="https://wa.me/${driver.phone}?text=Hola%20${driver.name},%20necesito%20un%20viaje%20en%20bicitaxi." 
+                       class="btn-order ${isWorkingTime ? '' : 'disabled'}" 
+                       target="_blank"
+                       onclick="trackClick('${driver.id}', '${driver.name}', '${driver.phone}')">
+                       ${isWorkingTime ? 'Pedir Viaje 🚖' : 'No disponible'}
+                    </a>
                 </div>
             `;
             list.appendChild(card);
@@ -223,6 +304,36 @@
     }
 
     renderDrivers();
+
+    // Registro del Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registrado con éxito.', reg))
+                .catch(err => console.log('Error al registrar Service Worker:', err));
+        });
+    }
+
+    // Banner para sugerir instalación PWA
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('pwa-banner').style.display = 'block';
+    });
+
+    document.getElementById('btn-install-app').addEventListener('click', () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('El usuario aceptó instalar la PWA');
+                }
+                deferredPrompt = null;
+                document.getElementById('pwa-banner').style.display = 'none';
+            });
+        }
+    });
 </script>
 
 </body>
