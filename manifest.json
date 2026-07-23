@@ -1,0 +1,17 @@
+{
+  "name": "BiciTaxi Artemisa",
+  "short_name": "BiciTaxi",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#2e7d32",
+  "description": "Tu transporte rápido y confiable en Artemisa",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
