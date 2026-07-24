@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -148,7 +149,7 @@
             color: #1e88e5;
             text-decoration: underline;
             font-size: 0.75rem;
-            font-weight: normal;
+            font-weight: bold;
             cursor: pointer;
         }
 
@@ -268,14 +269,6 @@
         }
     ];
 
-    // Registrar contador invisible de clics
-    function trackClick(driverId, driverName) {
-        let clicks = localStorage.getItem('clicks_' + driverId) || 0;
-        clicks = parseInt(clicks) + 1;
-        localStorage.setItem('clicks_' + driverId, clicks);
-        console.log(`[Contador] El chofer ${driverName} ha recibido ${clicks} clics en total.`);
-    }
-
     function renderDrivers() {
         const list = document.getElementById('drivers-list');
         list.innerHTML = '';
@@ -289,7 +282,7 @@
             card.className = `driver-card ${isWorkingTime ? '' : 'offline'}`;
             
             const photoUrl = driver.photo ? driver.photo : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
-            const reviewUrl = `https://wa.me/${adminPhone}?text=Hola,%20quiero%20dejar%20una%20calificaci%C3%B3n%20para%20el%20chofer%20${encodeURIComponent(driver.name)}`;
+            const reviewUrl = `https://wa.me/${adminPhone}?text=Hola%20Yonlys,%20quiero%20dejar%20una%20calificaci%C3%B3n%20para%20el%20chofer%20${encodeURIComponent(driver.name)}`;
 
             card.innerHTML = `
                 <img src="${photoUrl}" class="driver-avatar" alt="${driver.name}">
@@ -302,11 +295,10 @@
                     </div>
                     <p>📍 <b>Zona:</b> ${driver.zone}</p>
                     <p>💰 <b>Tarifa:</b> ${driver.rate}</p>
-                    <span class="badge ${isWorkingTime ? '' : 'offline'}">${isWorkingTime ? 'Disponible' : 'Fuera de servicio (Regresa 6 AM)'}</span>
+                    <span class="badge ${isWorkingTime ? '' : 'offline'}">${isWorkingTime ? 'Disponible' : 'Fuera de servicio'}</span>
                     <a href="https://wa.me/${driver.phone}?text=Hola%20${driver.name},%20necesito%20un%20viaje%20en%20bicitaxi." 
                        class="btn-order ${isWorkingTime ? '' : 'disabled'}" 
-                       target="_blank"
-                       onclick="trackClick('${driver.id}', '${driver.name}')">
+                       target="_blank">
                        ${isWorkingTime ? 'Pedir Viaje 🚖' : 'No disponible'}
                     </a>
                 </div>
@@ -317,35 +309,14 @@
 
     renderDrivers();
 
-    // Registro del Service Worker para PWA
+    // Registro del Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker registrado.', reg))
+                .then(reg => console.log('SW registrado', reg))
                 .catch(err => console.log('Error SW:', err));
         });
     }
-
-    // Banner para instalar PWA
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('pwa-banner').style.display = 'block';
-    });
-
-    document.getElementById('btn-install-app').addEventListener('click', () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('App instalada');
-                }
-                deferredPrompt = null;
-                document.getElementById('pwa-banner').style.display = 'none';
-            });
-        }
-    });
 </script>
 
 </body>
